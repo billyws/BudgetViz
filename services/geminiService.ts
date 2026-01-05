@@ -1,10 +1,7 @@
 
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
-import { BUDGET_DATA, formatCurrency, KPMG_INSIGHTS, KPMG_REPORT_URL, TREASURY_URL, NSO_URL, FISCAL_METRICS } from '../constants';
-
-const dataContext = BUDGET_DATA.map(item => 
-  `- ${item.name} (${item.category}): 2025 Est: ${formatCurrency(item.allocation2025)}, 2026 Proj: ${formatCurrency(item.allocation2026)}.`
-).join('\n');
+import { formatCurrency, KPMG_INSIGHTS, KPMG_REPORT_URL, TREASURY_URL, NSO_URL, FISCAL_METRICS, BUDGET_DATA } from '../constants';
+import axios from "axios";
 
 const SYSTEM_INSTRUCTION = `You are the "Budget Bot", an expert AI assistant for the Papua New Guinea National Budget Dashboard. 
 
@@ -45,7 +42,7 @@ let chatSession: Chat | null = null;
 
 export const initializeChat = () => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     chatSession = ai.chats.create({
       model: 'gemini-3-flash-preview',
       config: {
@@ -68,4 +65,9 @@ export const sendMessage = async (message: string): Promise<string> => {
     console.error("Gemini API Error:", error);
     return "Budget analysis engine busy. Please retry shortly.";
   }
+};
+
+export const fetchBudgetData = async (): Promise<any[]> => {
+  // Return the static data from constants
+  return Promise.resolve(BUDGET_DATA);
 };

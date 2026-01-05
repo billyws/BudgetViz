@@ -53,7 +53,9 @@ export const KPMG_INSIGHTS: AnalysisInsight[] = [
  * COMPREHENSIVE BUDGET DATA (Volume 2 A-D Alignment)
  * Including 22 Provinces and key districts/projects.
  */
+
 export const BUDGET_DATA: BudgetCode[] = [
+
   // --- REVENUE SOURCES ---
   { id: 'REV-03', name: 'Personal Income Tax (PAYE)', category: 'Revenue', allocation2024: 7200000000, allocation2025: 7800000000, allocation2026: 8800000000 },
   { id: 'REV-03-01', name: 'Public Sector PAYE', parentId: 'REV-03', category: 'Revenue', allocation2024: 2800000000, allocation2025: 3000000000, allocation2026: 3400000000 },
@@ -293,9 +295,9 @@ export const BUDGET_DATA: BudgetCode[] = [
   { id: 'PROV-16-P2', name: 'Aropa Airport Fencing', parentId: 'PROV-16', category: 'Agency', allocation2024: 5000000, allocation2025: 8000000, allocation2026: 12000000 }
 ];
 
-export const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6', '#F97316'];
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6', '#F97316'];
 
-export const SECTOR_DATA_2026 = BUDGET_DATA
+const SECTOR_DATA_2026 = BUDGET_DATA
   .filter(b => b.category === 'Sector')
   .sort((a, b) => b.allocation2026 - a.allocation2026)
   .map((b, index) => ({
@@ -305,7 +307,7 @@ export const SECTOR_DATA_2026 = BUDGET_DATA
     id: b.id
   }));
 
-export const REVENUE_DATA_2026 = BUDGET_DATA
+const REVENUE_DATA_2026 = BUDGET_DATA
   .filter(b => b.category === 'Revenue' && !b.parentId)
   .sort((a, b) => b.allocation2026 - a.allocation2026)
   .map((b, index) => ({
