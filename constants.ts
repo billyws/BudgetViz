@@ -88,12 +88,45 @@ export const BUDGET_DATA: BudgetCode[] = [
 
   // --- SECTORS (Sum: K30.913B) --- 
   { id: 'SEC-02', name: 'Infrastructure (Connect PNG)', category: 'Sector', allocation2024: 4800000000, allocation2025: 5900000000, allocation2026: 6800000000 },
+  { id: 'SEC-02-01', name: 'Dept of Works & Highways Major Roads', parentId: 'SEC-02', category: 'Sector', allocation2024: 2500000000, allocation2025: 3000000000, allocation2026: 3500000000 },
+  { id: 'SEC-02-02', name: 'Connect PNG Missing Links', parentId: 'SEC-02', category: 'Sector', allocation2024: 1500000000, allocation2025: 1800000000, allocation2026: 2000000000 },
+  { id: 'SEC-02-03', name: 'National Bridge Maintenance', parentId: 'SEC-02', category: 'Sector', allocation2024: 500000000, allocation2025: 700000000, allocation2026: 800000000 },
+  { id: 'SEC-02-04', name: 'Strategic Airports Upgrades (CADIP)', parentId: 'SEC-02', category: 'Sector', allocation2024: 300000000, allocation2025: 400000000, allocation2026: 500000000 },
+
   { id: 'SEC-03', name: 'Education', category: 'Sector', allocation2024: 3800000000, allocation2025: 4402000000, allocation2026: 4900000000 },
+  { id: 'SEC-03-01', name: 'Teachers Salaries & Benefits', parentId: 'SEC-03', category: 'Sector', allocation2024: 2500000000, allocation2025: 2800000000, allocation2026: 3000000000 },
+  { id: 'SEC-03-02', name: 'Tuition Fee Free (TFF) Subsidy', parentId: 'SEC-03', category: 'Sector', allocation2024: 700000000, allocation2025: 750000000, allocation2026: 800000000 },
+  { id: 'SEC-03-03', name: 'School Infrastructure PIP', parentId: 'SEC-03', category: 'Sector', allocation2024: 300000000, allocation2025: 450000000, allocation2026: 600000000 },
+  { id: 'SEC-03-04', name: 'Higher Education (DHERST) Support', parentId: 'SEC-03', category: 'Sector', allocation2024: 300000000, allocation2025: 402000000, allocation2026: 500000000 },
+
   { id: 'SEC-04', name: 'Health (incl. PHAs)', category: 'Sector', allocation2024: 3200000000, allocation2025: 2763000000, allocation2026: 3200000000 },
+  { id: 'SEC-04-01', name: 'Provincial Health Authorities (PHAs)', parentId: 'SEC-04', category: 'Sector', allocation2024: 1200000000, allocation2025: 1100000000, allocation2026: 1470000000 },
+  { id: 'SEC-04-02', name: 'Medical Supplies Procurement', parentId: 'SEC-04', category: 'Sector', allocation2024: 900000000, allocation2025: 800000000, allocation2026: 1000000000 },
+  { id: 'SEC-04-03', name: 'Hospital Management Services', parentId: 'SEC-04', category: 'Sector', allocation2024: 600000000, allocation2025: 500000000, allocation2026: 500000000 },
+  { id: 'SEC-04-04', name: 'Rural Health Infrastructure', parentId: 'SEC-04', category: 'Sector', allocation2024: 500000000, allocation2025: 363000000, allocation2026: 230000000 },
+
   { id: 'SEC-05', name: 'Debt Services', category: 'Sector', allocation2024: 4500000000, allocation2025: 5200000000, allocation2026: 5800000000 },
+  { id: 'SEC-05-01', name: 'Domestic Debt Interest', parentId: 'SEC-05', category: 'Sector', allocation2024: 2800000000, allocation2025: 3200000000, allocation2026: 3500000000 },
+  { id: 'SEC-05-02', name: 'External Loan Interest', parentId: 'SEC-05', category: 'Sector', allocation2024: 1200000000, allocation2025: 1500000000, allocation2026: 1800000000 },
+  { id: 'SEC-05-03', name: 'Loan Fees & Charges', parentId: 'SEC-05', category: 'Sector', allocation2024: 500000000, allocation2025: 500000000, allocation2026: 500000000 },
+
   { id: 'SEC-06', name: 'Law & Justice', category: 'Sector', allocation2024: 1900000000, allocation2025: 2281000000, allocation2026: 2500000000 },
+  { id: 'SEC-06-01', name: 'Police (RPNGC) Operations', parentId: 'SEC-06', category: 'Sector', allocation2024: 900000000, allocation2025: 1100000000, allocation2026: 1200000000 },
+  { id: 'SEC-06-02', name: 'Correctional Services', parentId: 'SEC-06', category: 'Sector', allocation2024: 500000000, allocation2025: 581000000, allocation2026: 600000000 },
+  { id: 'SEC-06-03', name: 'Judiciary Services', parentId: 'SEC-06', category: 'Sector', allocation2024: 300000000, allocation2025: 350000000, allocation2026: 400000000 },
+  { id: 'SEC-06-04', name: 'Attorney General & Justice Dept', parentId: 'SEC-06', category: 'Sector', allocation2024: 200000000, allocation2025: 250000000, allocation2026: 300000000 },
+
   { id: 'SEC-07', name: 'Economic & Agriculture', category: 'Sector', allocation2024: 1100000000, allocation2025: 1610000000, allocation2026: 3213000000 },
+  { id: 'SEC-07-01', name: 'Agriculture (DAL) & Livestock', parentId: 'SEC-07', category: 'Sector', allocation2024: 500000000, allocation2025: 800000000, allocation2026: 1500000000 },
+  { id: 'SEC-07-02', name: 'SME Corporation Support', parentId: 'SEC-07', category: 'Sector', allocation2024: 300000000, allocation2025: 500000000, allocation2026: 800000000 },
+  { id: 'SEC-07-03', name: 'Lands & Physical Planning', parentId: 'SEC-07', category: 'Sector', allocation2024: 150000000, allocation2025: 200000000, allocation2026: 513000000 },
+  { id: 'SEC-07-04', name: 'Tourism Promotion & Culture', parentId: 'SEC-07', category: 'Sector', allocation2024: 150000000, allocation2025: 110000000, allocation2026: 400000000 },
+
   { id: 'SEC-08', name: 'Public Administration', category: 'Sector', allocation2024: 4000000000, allocation2025: 4200000000, allocation2026: 4500000000 },
+  { id: 'SEC-08-01', name: 'Grants to Provinces & LLGs', parentId: 'SEC-08', category: 'Sector', allocation2024: 1200000000, allocation2025: 1300000000, allocation2026: 1500000000 },
+  { id: 'SEC-08-02', name: 'General Public Service Salaries', parentId: 'SEC-08', category: 'Sector', allocation2024: 1800000000, allocation2025: 1900000000, allocation2026: 2000000000 },
+  { id: 'SEC-08-03', name: 'Parliamentary Services', parentId: 'SEC-08', category: 'Sector', allocation2024: 600000000, allocation2025: 600000000, allocation2026: 600000000 },
+  { id: 'SEC-08-04', name: 'Electoral Commission', parentId: 'SEC-08', category: 'Sector', allocation2024: 400000000, allocation2025: 400000000, allocation2026: 400000000 },
 
   // --- PROVINCIAL DATA (VOLUME 2 A, B, C, D) ---
 
