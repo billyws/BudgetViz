@@ -40,7 +40,26 @@ const Dashboard: React.FC = () => {
 
   // Drill-down data logic
   const sectorDrillDownData = useMemo(() => {
-    if (!activeSectorId) return SECTOR_DATA_2026;
+    if (!activeSectorId) {
+      // Limit to Top 4 + Others
+      const topSectors = SECTOR_DATA_2026.slice(0, 4);
+      const otherSectors = SECTOR_DATA_2026.slice(4);
+      
+      if (otherSectors.length > 0) {
+        const otherValue = otherSectors.reduce((sum, item) => sum + item.value, 0);
+        return [
+          ...topSectors,
+          { 
+            name: 'Other Sectors', 
+            value: otherValue, 
+            color: '#94a3b8', // slate-400
+            id: null 
+          }
+        ];
+      }
+      return topSectors;
+    }
+
     return BUDGET_DATA
       .filter(b => b.parentId === activeSectorId)
       .map((b, index) => ({
