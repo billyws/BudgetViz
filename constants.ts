@@ -56,15 +56,35 @@ export const KPMG_INSIGHTS: AnalysisInsight[] = [
 export const BUDGET_DATA: BudgetCode[] = [
   // --- REVENUE SOURCES ---
   { id: 'REV-03', name: 'Personal Income Tax (PAYE)', category: 'Revenue', allocation2024: 7200000000, allocation2025: 7800000000, allocation2026: 8800000000 },
+  { id: 'REV-03-01', name: 'Public Sector PAYE', parentId: 'REV-03', category: 'Revenue', allocation2024: 2800000000, allocation2025: 3000000000, allocation2026: 3400000000 },
+  { id: 'REV-03-02', name: 'Private Sector PAYE', parentId: 'REV-03', category: 'Revenue', allocation2024: 3200000000, allocation2025: 3500000000, allocation2026: 4000000000 },
+  { id: 'REV-03-03', name: 'Mining & Resource Sector PAYE', parentId: 'REV-03', category: 'Revenue', allocation2024: 1200000000, allocation2025: 1300000000, allocation2026: 1400000000 },
+
   { id: 'REV-01', name: 'Mining & Petroleum Dividends', category: 'Revenue', allocation2024: 7800000000, allocation2025: 8400000000, allocation2026: 7500000000 },
   { id: 'REV-01-01', name: 'Ok Tedi Mining Dividends', parentId: 'REV-01', category: 'Revenue', allocation2024: 2100000000, allocation2025: 2300000000, allocation2026: 2000000000 },
   { id: 'REV-01-02', name: 'PNG LNG Project (ExxonMobil)', parentId: 'REV-01', category: 'Revenue', allocation2024: 2500000000, allocation2025: 2800000000, allocation2026: 2400000000 },
   { id: 'REV-01-03', name: 'Porgera Gold Mine', parentId: 'REV-01', category: 'Revenue', allocation2024: 1200000000, allocation2025: 1300000000, allocation2026: 1100000000 },
   { id: 'REV-01-04', name: 'Lihir Gold (Newmont)', parentId: 'REV-01', category: 'Revenue', allocation2024: 1000000000, allocation2025: 1100000000, allocation2026: 1000000000 },
   { id: 'REV-01-05', name: 'Other Mining & Petroleum', parentId: 'REV-01', category: 'Revenue', allocation2024: 1000000000, allocation2025: 900000000, allocation2026: 1000000000 },
+
   { id: 'REV-02', name: 'Goods & Services Tax (GST)', category: 'Revenue', allocation2024: 5500000000, allocation2025: 6400000000, allocation2026: 7200000000 },
+  { id: 'REV-02-01', name: 'Retail & Wholesale GST', parentId: 'REV-02', category: 'Revenue', allocation2024: 2200000000, allocation2025: 2600000000, allocation2026: 2900000000 },
+  { id: 'REV-02-02', name: 'Import GST', parentId: 'REV-02', category: 'Revenue', allocation2024: 1800000000, allocation2025: 2100000000, allocation2026: 2400000000 },
+  { id: 'REV-02-03', name: 'Services Sector GST', parentId: 'REV-02', category: 'Revenue', allocation2024: 1000000000, allocation2025: 1200000000, allocation2026: 1400000000 },
+  { id: 'REV-02-04', name: 'Hospitality & Tourism GST', parentId: 'REV-02', category: 'Revenue', allocation2024: 500000000, allocation2025: 500000000, allocation2026: 500000000 },
+
   { id: 'REV-04', name: 'Company Income Tax', category: 'Revenue', allocation2024: 3200000000, allocation2025: 3800000000, allocation2026: 4200000000 },
+  { id: 'REV-04-01', name: 'Mining & Petroleum CIT', parentId: 'REV-04', category: 'Revenue', allocation2024: 1400000000, allocation2025: 1700000000, allocation2026: 1900000000 },
+  { id: 'REV-04-02', name: 'Financial Services CIT', parentId: 'REV-04', category: 'Revenue', allocation2024: 800000000, allocation2025: 900000000, allocation2026: 1000000000 },
+  { id: 'REV-04-03', name: 'Telecommunications CIT', parentId: 'REV-04', category: 'Revenue', allocation2024: 500000000, allocation2025: 600000000, allocation2026: 700000000 },
+  { id: 'REV-04-04', name: 'Other Corporate CIT', parentId: 'REV-04', category: 'Revenue', allocation2024: 500000000, allocation2025: 600000000, allocation2026: 600000000 },
+
   { id: 'REV-05', name: 'Other Non-Tax Revenue', category: 'Revenue', allocation2024: 1100000000, allocation2025: 1400000000, allocation2026: 1600000000 },
+  { id: 'REV-05-01', name: 'Government Fees & Charges', parentId: 'REV-05', category: 'Revenue', allocation2024: 400000000, allocation2025: 500000000, allocation2026: 600000000 },
+  { id: 'REV-05-02', name: 'SOE Dividends', parentId: 'REV-05', category: 'Revenue', allocation2024: 350000000, allocation2025: 450000000, allocation2026: 500000000 },
+  { id: 'REV-05-03', name: 'Customs & Excise Duties', parentId: 'REV-05', category: 'Revenue', allocation2024: 250000000, allocation2025: 300000000, allocation2026: 350000000 },
+  { id: 'REV-05-04', name: 'Licenses & Permits', parentId: 'REV-05', category: 'Revenue', allocation2024: 100000000, allocation2025: 150000000, allocation2026: 150000000 },
+
 
   // --- SECTORS (Sum: K30.913B) --- 
   { id: 'SEC-02', name: 'Infrastructure (Connect PNG)', category: 'Sector', allocation2024: 4800000000, allocation2025: 5900000000, allocation2026: 6800000000 },
