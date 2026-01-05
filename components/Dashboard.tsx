@@ -318,7 +318,6 @@ const Dashboard: React.FC = () => {
               <thead className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-50">
                 <tr>
                   <th className="pb-3 px-2">Sector</th>
-                  <th className="pb-3 text-right px-2">2025 Est.</th>
                   <th className="pb-3 text-right px-2">2026 Proj.</th>
                   <th className="pb-3 text-right px-2">Trend</th>
                 </tr>
@@ -332,7 +331,6 @@ const Dashboard: React.FC = () => {
                         <span className="text-xs font-bold text-slate-700">{item.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-right font-mono text-[11px] text-slate-500">{formatBillions(item.prevValue)}</td>
                     <td className="py-3 px-2 text-right font-mono text-xs font-black text-slate-800">{formatBillions(item.value)}</td>
                     <td className="py-3 px-2 text-right">{renderTrend(item.value, item.prevValue)}</td>
                   </tr>
@@ -353,7 +351,6 @@ const Dashboard: React.FC = () => {
               <thead className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-50">
                 <tr>
                   <th className="pb-3 px-2">Source</th>
-                  <th className="pb-3 text-right px-2">2025 Est.</th>
                   <th className="pb-3 text-right px-2">2026 Proj.</th>
                   <th className="pb-3 text-right px-2">Trend</th>
                 </tr>
@@ -362,7 +359,6 @@ const Dashboard: React.FC = () => {
                 {topRevenue.map((item, idx) => (
                   <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-3 px-2 text-xs font-bold text-slate-700">{item.name}</td>
-                    <td className="py-3 px-2 text-right font-mono text-[11px] text-slate-500">{formatBillions(item.prevValue)}</td>
                     <td className="py-3 px-2 text-right font-mono text-xs font-black text-emerald-700">{formatBillions(item.value)}</td>
                     <td className="py-3 px-2 text-right">{renderTrend(item.value, item.prevValue)}</td>
                   </tr>
