@@ -1,10 +1,13 @@
+
 export interface BudgetCode {
   id: string;
   name: string;
-  category: 'Sector' | 'Province' | 'Agency' | 'District';
+  parentId?: string; // Links District -> Province, Agency -> Sector, Sub-Revenue -> Revenue
+  category: 'Sector' | 'Province' | 'Agency' | 'District' | 'Revenue';
   allocation2024: number; // Actual
   allocation2025: number; // Estimate
   allocation2026: number; // Projection
+  population?: number; // NSO Population Estimate
   description?: string;
 }
 
@@ -12,6 +15,7 @@ export interface SectorSummary {
   name: string;
   value: number;
   color: string;
+  id?: string;
 }
 
 export interface AnalysisInsight {
@@ -24,7 +28,8 @@ export interface AnalysisInsight {
 export enum ViewMode {
   DASHBOARD = 'DASHBOARD',
   EXPLORER = 'EXPLORER',
-  COMPARE = 'COMPARE'
+  COMPARE = 'COMPARE',
+  MAP = 'MAP'
 }
 
 export interface ChatMessage {

@@ -1,11 +1,12 @@
+
 import React, { useState } from 'react';
-import { LayoutDashboard, Table, ArrowRightLeft, FileText, Menu, X, Landmark, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Table, ArrowRightLeft, FileText, Menu, X, Landmark, ExternalLink, Map } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import DataExplorer from './components/DataExplorer';
 import ComparisonView from './components/ComparisonView';
-import ChatBot from './components/ChatBot';
+import ProvincialMap from './components/ProvincialMap';
 import { ViewMode } from './types';
-import { KPMG_REPORT_URL } from './constants';
+import { KPMG_REPORT_URL, TREASURY_URL } from './constants';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.DASHBOARD);
@@ -19,6 +20,8 @@ const App: React.FC = () => {
         return <DataExplorer />;
       case ViewMode.COMPARE:
         return <ComparisonView />;
+      case ViewMode.MAP:
+        return <ProvincialMap />;
       default:
         return <Dashboard />;
     }
@@ -59,6 +62,7 @@ const App: React.FC = () => {
         
         <nav className="flex-1 p-4 space-y-2">
           <NavItem mode={ViewMode.DASHBOARD} icon={LayoutDashboard} label="Overview" />
+          <NavItem mode={ViewMode.MAP} icon={Map} label="Provincial Map" />
           <NavItem mode={ViewMode.EXPLORER} icon={Table} label="Data Explorer" />
           <NavItem mode={ViewMode.COMPARE} icon={ArrowRightLeft} label="Comparison" />
         </nav>
@@ -70,7 +74,7 @@ const App: React.FC = () => {
               Based on projected 2026 National Budget Strategy.
             </p>
             <a 
-              href="https://www.treasury.gov.pg" 
+              href={TREASURY_URL} 
               target="_blank" 
               rel="noreferrer"
               className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1"
@@ -113,6 +117,7 @@ const App: React.FC = () => {
         <div className="md:hidden fixed inset-0 z-10 bg-white pt-20 px-4">
            <nav className="space-y-2">
             <NavItem mode={ViewMode.DASHBOARD} icon={LayoutDashboard} label="Overview" />
+            <NavItem mode={ViewMode.MAP} icon={Map} label="Provincial Map" />
             <NavItem mode={ViewMode.EXPLORER} icon={Table} label="Data Explorer" />
             <NavItem mode={ViewMode.COMPARE} icon={ArrowRightLeft} label="Comparison" />
           </nav>
@@ -125,6 +130,7 @@ const App: React.FC = () => {
           <header className="mb-8 hidden md:block">
             <h2 className="text-2xl font-bold text-slate-800">
               {currentView === ViewMode.DASHBOARD && 'Executive Summary'}
+              {currentView === ViewMode.MAP && 'Provincial Equity Map'}
               {currentView === ViewMode.EXPLORER && 'Detailed Allocations'}
               {currentView === ViewMode.COMPARE && 'Budget Comparison'}
             </h2>
@@ -136,9 +142,6 @@ const App: React.FC = () => {
           {renderContent()}
         </div>
       </main>
-
-      {/* AI Assistant */}
-      <ChatBot />
     </div>
   );
 };

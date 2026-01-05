@@ -1,42 +1,70 @@
-import React from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
-  PieChart, Pie, Cell, AreaChart, Area
+  PieChart, Pie, Cell, Label
 } from 'recharts';
-import { BUDGET_DATA, SECTOR_DATA_2026, COLORS, formatCurrency, formatBillions, KPMG_INSIGHTS } from '../constants';
-import { TrendingUp, Wallet, Landmark, Activity, Zap, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { BUDGET_DATA, SECTOR_DATA_2026, REVENUE_DATA_2026, COLORS, formatCurrency, formatBillions, KPMG_INSIGHTS, FISCAL_METRICS } from '../constants';
+import { TrendingUp, Wallet, Activity, Zap, AlertTriangle, CheckCircle, Users, Coins, TrendingDown, Landmark, ChevronRight, ArrowLeft, ArrowUpRight } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  // Aggregate data for totals (Using Sector category as the primary aggregator to avoid double counting Agencies/Provinces if they are subsets)
-  const totalBudget2026 = BUDGET_DATA
-    .filter(i => i.category === 'Sector')
-    .reduce((acc, curr) => acc + curr.allocation2026, 0);
+  const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
+  const [activeRevenueId, setActiveRevenueId] = useState<string | null>(null);
 
-  const totalBudget2025 = BUDGET_DATA
-    .filter(i => i.category === 'Sector')
-    .reduce((acc, curr) => acc + curr.allocation2025, 0);
+  const totalBudget2026 = FISCAL_METRICS.totalExpenditure;
+  const totalRevenue2026 = FISCAL_METRICS.totalRevenue;
 
-  const growthRate = ((totalBudget2026 - totalBudget2025) / totalBudget2025) * 100;
-
-  const provinceData = BUDGET_DATA
-    .filter(i => i.category === 'Province')
-    .sort((a, b) => b.allocation2026 - a.allocation2026);
-
-  // Calculate sector growth rates for top risers
-  const sectorGrowthData = BUDGET_DATA
-    .filter(i => i.category === 'Sector')
-    .map(item => ({
-      name: item.name,
-      growth: ((item.allocation2026 - item.allocation2025) / item.allocation2025) * 100
-    }))
-    .sort((a, b) => b.growth - a.growth)
-    .slice(0, 5); // Top 5
-
-  const trendData = [
-    { year: '2024', amount: 24500000000 },
-    { year: '2025', amount: 26500000000 },
-    { year: '2026', amount: 29500000000 }, // Simulated total
+  // Efficiency data
+  const expenditureSplitData = [
+    { name: 'Operational', value: FISCAL_METRICS.operationalExp, color: '#3B82F6' },
+    { name: 'Capital / PIP', value: FISCAL_METRICS.capitalExp, color: '#60A5FA' },
+    { name: 'Interest/Debt', value: totalBudget2026 - (FISCAL_METRICS.operationalExp + FISCAL_METRICS.capitalExp), color: '#93C5FD' }
   ];
+
+  const perCapitaData = [
+    { name: 'National Avg', value: FISCAL_METRICS.nationalPerCapita, type: 'Total' },
+    { name: 'Education', value: 480, type: 'Sector' },
+    { name: 'Health (PHA)', value: 144, type: 'Sector' },
+    { name: 'Infrastructure', value: 666, type: 'Sector' }
+  ];
+
+  // Top Spending Priorities (Top 6 Sectors)
+  const topPriorities = useMemo(() => {
+    return SECTOR_DATA_2026.slice(0, 6);
+  }, []);
+
+  // Primary Revenue Streams (Top 5 Revenue Items)
+  const topRevenue = useMemo(() => {
+    return REVENUE_DATA_2026.slice(0, 5);
+  }, []);
+
+  // Drill-down data logic
+  const sectorDrillDownData = useMemo(() => {
+    if (!activeSectorId) return SECTOR_DATA_2026;
+    return BUDGET_DATA
+      .filter(b => b.parentId === activeSectorId)
+      .map((b, index) => ({
+        name: b.name,
+        value: b.allocation2026,
+        color: COLORS[index % COLORS.length],
+        id: b.id
+      }));
+  }, [activeSectorId]);
+
+  const revenueDrillDownData = useMemo(() => {
+    if (!activeRevenueId) return REVENUE_DATA_2026;
+    return BUDGET_DATA
+      .filter(b => b.parentId === activeRevenueId)
+      .map((b, index) => ({
+        name: b.name,
+        value: b.allocation2026,
+        color: ['#10B981', '#059669', '#047857', '#065F46', '#064E3B'][index % 5],
+        id: b.id
+      }));
+  }, [activeRevenueId]);
+
+  const activeSectorName = BUDGET_DATA.find(b => b.id === activeSectorId)?.name || "All Sectors";
+  const activeRevenueName = BUDGET_DATA.find(b => b.id === activeRevenueId)?.name || "All Sources";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -44,178 +72,295 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium">Total Budget 2026</p>
+            <p className="text-sm text-slate-500 font-medium">Total Expenditure</p>
             <h3 className="text-2xl font-bold text-slate-800">{formatBillions(totalBudget2026)}</h3>
           </div>
           <div className="p-3 bg-blue-50 rounded-full">
             <Wallet className="w-6 h-6 text-blue-600" />
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium">YoY Growth</p>
-            <h3 className="text-2xl font-bold text-green-600">+{growthRate.toFixed(1)}%</h3>
-            <p className="text-xs text-green-600/80 font-medium mt-1">2025 vs 2026</p>
+            <p className="text-sm text-slate-500 font-medium">Total Revenue</p>
+            <h3 className="text-2xl font-bold text-emerald-600">{formatBillions(totalRevenue2026)}</h3>
+            <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">88% Internally Funded</p>
           </div>
-          <div className="p-3 bg-green-50 rounded-full">
-            <TrendingUp className="w-6 h-6 text-green-600" />
+          <div className="p-3 bg-emerald-50 rounded-full">
+            <Coins className="w-6 h-6 text-emerald-600" />
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium">Top Sector</p>
-            <h3 className="text-2xl font-bold text-slate-800">Infrastructure</h3>
+            <p className="text-sm text-slate-500 font-medium">Deficit % of GDP</p>
+            <h3 className="text-2xl font-bold text-slate-800">{FISCAL_METRICS.deficitGdp}%</h3>
+            <div className="flex items-center gap-1 mt-1">
+              <TrendingDown className="w-3 h-3 text-emerald-500" />
+              <p className="text-xs text-emerald-500 font-medium">Consolidation Path</p>
+            </div>
           </div>
-          <div className="p-3 bg-orange-50 rounded-full">
-            <Activity className="w-6 h-6 text-orange-600" />
+          <div className="p-3 bg-indigo-50 rounded-full">
+            <Activity className="w-6 h-6 text-indigo-600" />
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium">Provinces Funded</p>
-            <h3 className="text-2xl font-bold text-slate-800">22</h3>
+            <p className="text-sm text-slate-500 font-medium">Debt-to-GDP Ratio</p>
+            <h3 className="text-2xl font-bold text-slate-800">{FISCAL_METRICS.debtGdp}%</h3>
+            <div className="flex items-center gap-1 mt-1">
+              <TrendingDown className="w-3 h-3 text-emerald-500" />
+              <p className="text-xs text-emerald-500 font-medium">Targeted Reduction</p>
+            </div>
           </div>
-          <div className="p-3 bg-purple-50 rounded-full">
-            <Landmark className="w-6 h-6 text-purple-600" />
+          <div className="p-3 bg-slate-50 rounded-full">
+            <Landmark className="w-6 h-6 text-slate-600" />
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sector Distribution */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">2026 Sector Allocation</h3>
-          <div className="h-80">
+        {/* Interactive Expenditure Drill-down */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col min-h-[450px]">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+                Expenditure by Sector
+              </h3>
+              <p className="text-xs text-slate-500">{activeSectorId ? `Drill-down: ${activeSectorName}` : 'Click slice to explore agencies'}</p>
+            </div>
+            {activeSectorId && (
+              <button 
+                onClick={() => setActiveSectorId(null)}
+                className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded"
+              >
+                <ArrowLeft className="w-3 h-3" /> Back
+              </button>
+            )}
+          </div>
+          <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie
-                  data={SECTOR_DATA_2026}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  fill="#8884d8"
+                <Pie 
+                  data={sectorDrillDownData} 
+                  innerRadius={70} 
+                  outerRadius={100} 
+                  dataKey="value" 
                   paddingAngle={5}
-                  dataKey="value"
+                  onClick={(data) => {
+                    if (!activeSectorId && data.id) setActiveSectorId(data.id);
+                  }}
+                  className="cursor-pointer focus:outline-none"
                 >
-                  {SECTOR_DATA_2026.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {sectorDrillDownData.map((entry, index) => (
+                    <Cell key={`cell-exp-${index}`} fill={entry.color} />
                   ))}
+                  <Label 
+                    value={activeSectorId ? activeSectorName : "Sectors"} 
+                    position="center" 
+                    style={{ fontSize: '12px', fontWeight: 'bold', fill: '#1e293b' }}
+                  />
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                />
-                <Legend layout="vertical" verticalAlign="middle" align="right" />
+                <Tooltip formatter={(val: number) => formatCurrency(val)} />
               </PieChart>
             </ResponsiveContainer>
           </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {sectorDrillDownData.slice(0, 4).map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                <span className="text-[10px] font-bold text-slate-600 truncate">{item.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Fastest Growing Sectors */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-slate-800">Fastest Growing Sectors (25-26)</h3>
-            <div className="p-2 bg-yellow-50 rounded-full">
-              <Zap className="w-5 h-5 text-yellow-500" />
+        {/* Interactive Revenue Drill-down */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col min-h-[450px]">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Coins className="w-5 h-5 text-emerald-600" />
+                Revenue Generation Sources
+              </h3>
+              <p className="text-xs text-slate-500">{activeRevenueId ? `Drill-down: ${activeRevenueName}` : 'Click slice to see details'}</p>
             </div>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={sectorGrowthData}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            {activeRevenueId && (
+              <button 
+                onClick={() => setActiveRevenueId(null)}
+                className="flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-800 bg-emerald-50 px-2 py-1 rounded"
               >
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                <XAxis type="number" tickFormatter={(val) => `+${val}%`} />
-                <YAxis dataKey="name" type="category" width={150} tick={{fontSize: 12}} />
-                <Tooltip 
-                  cursor={{fill: 'transparent'}}
-                  formatter={(value: number) => [`+${value.toFixed(1)}%`, 'Growth']}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                />
-                <Bar dataKey="growth" fill="#10B981" radius={[0, 4, 4, 0]} barSize={25} />
-              </BarChart>
+                <ArrowLeft className="w-3 h-3" /> Back
+              </button>
+            )}
+          </div>
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie 
+                  data={revenueDrillDownData} 
+                  innerRadius={70} 
+                  outerRadius={100} 
+                  dataKey="value" 
+                  paddingAngle={5}
+                  onClick={(data) => {
+                    if (!activeRevenueId && data.id) setActiveRevenueId(data.id);
+                  }}
+                  className="cursor-pointer focus:outline-none"
+                >
+                  {revenueDrillDownData.map((entry, index) => (
+                    <Cell key={`cell-rev-${index}`} fill={entry.color} />
+                  ))}
+                  <Label 
+                    value={activeRevenueId ? activeRevenueName : "Sources"} 
+                    position="center" 
+                    style={{ fontSize: '12px', fontWeight: 'bold', fill: '#1e293b' }}
+                  />
+                </Pie>
+                <Tooltip formatter={(val: number) => formatCurrency(val)} />
+              </PieChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {revenueDrillDownData.slice(0, 4).map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                <span className="text-[10px] font-bold text-slate-600 truncate">{item.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         {/* Historical Trend */}
-         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">Total Budget Trend (3 Years)</h3>
-          <div className="h-80">
+        {/* Top 2026 Spending Priorities */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-amber-500" />
+            Top 2026 Spending Priorities
+          </h3>
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={trendData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="year" />
-                <YAxis tickFormatter={(val) => `K${val / 1000000000}B`} />
-                <Tooltip 
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                />
-                <Area type="monotone" dataKey="amount" stroke="#0088FE" fill="#0088FE" fillOpacity={0.1} />
-              </AreaChart>
+              <BarChart data={topPriorities} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.3} />
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" width={110} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                <Tooltip formatter={(val: number) => formatCurrency(val)} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                  {topPriorities.map((entry, index) => (
+                    <Cell key={`cell-tp-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-4 bg-slate-50 p-3 rounded-lg flex justify-between items-center">
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Lead Priority</span>
+            <span className="text-xs font-black text-blue-700 uppercase">{topPriorities[0].name}</span>
           </div>
         </div>
 
-        {/* Provincial Breakdown */}
+        {/* Primary Revenue Streams */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">Top Provincial Allocations (2026)</h3>
-          <div className="h-80">
+          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <ArrowUpRight className="w-5 h-5 text-emerald-500" />
+            Primary Revenue Streams
+          </h3>
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={provinceData}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                <XAxis type="number" tickFormatter={(val) => `K${val / 1000000}M`} />
-                <YAxis dataKey="name" type="category" width={150} tick={{fontSize: 12}} />
-                <Tooltip 
-                  cursor={{fill: 'transparent'}}
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                />
-                <Bar dataKey="allocation2026" fill="#00C49F" radius={[0, 4, 4, 0]} barSize={20} />
+              <BarChart data={topRevenue} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.3} />
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" width={110} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                <Tooltip formatter={(val: number) => formatCurrency(val)} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                  {topRevenue.map((entry, index) => (
+                    <Cell key={`cell-tr-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-4 bg-slate-50 p-3 rounded-lg flex justify-between items-center">
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Top Contributor</span>
+            <span className="text-xs font-black text-emerald-700 uppercase">{topRevenue[0].name}</span>
           </div>
         </div>
       </div>
 
-      {/* External Analysis Section */}
-      <div className="bg-slate-800 rounded-xl shadow-sm overflow-hidden text-white">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Spending Efficiency (Kept for context) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-indigo-500" />
+            Spending Efficiency: Op vs Cap
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={expenditureSplitData} innerRadius={60} outerRadius={90} dataKey="value" paddingAngle={5}>
+                  {expenditureSplitData.map((entry, index) => (
+                    <Cell key={`cell-eff-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(val: number) => formatCurrency(val)} />
+                <Legend verticalAlign="bottom" height={36}/>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+             <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
+                <span>Total Capital / PIP</span>
+                <span className="text-blue-600 font-black">{formatBillions(FISCAL_METRICS.capitalExp)}</span>
+             </div>
+          </div>
+        </div>
+
+        {/* Per Capita Analysis (Kept for context) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <Users className="w-5 h-5 text-purple-500" />
+            Social Context: Per Capita Analysis
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={perCapitaData} layout="vertical" margin={{ left: 20 }}>
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fontWeight: 'bold' }} />
+                <Tooltip formatter={(val: number) => `PGK ${val.toLocaleString()} / person`} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={25}>
+                   {perCapitaData.map((entry, index) => (
+                     <Cell key={`cell-pc-${index}`} fill={entry.type === 'Total' ? '#4F46E5' : '#818CF8'} />
+                   ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+             <p className="text-[10px] text-slate-500 italic">National average spending is approximately K3,035 per person for the 2026 fiscal year.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Analysis Section */}
+      <div className="bg-slate-800 rounded-xl shadow-sm overflow-hidden text-white border border-slate-700">
         <div className="p-6 border-b border-slate-700 flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold">External Analysis: KPMG Perspective</h3>
-            <p className="text-slate-400 text-sm">Independent review of the 2026 Budget Strategy</p>
+            <h3 className="text-lg font-bold">2026 Strategy Perspectives</h3>
+            <p className="text-slate-400 text-sm">Key updates from Volume 1 & Strategy Papers</p>
           </div>
-          <a href="#" className="text-blue-400 text-sm hover:underline flex items-center gap-1">
-             Read Full Report <Info className="w-4 h-4" />
-          </a>
+          <div className="hidden md:block">
+             <Landmark className="w-8 h-8 text-slate-600" />
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-slate-700 gap-px border-t border-slate-700">
            {KPMG_INSIGHTS.map((insight, idx) => (
-             <div key={idx} className="p-6">
+             <div key={idx} className="p-6 bg-slate-800 hover:bg-slate-750 transition-colors">
                 <div className="flex items-center gap-2 mb-2">
                   {insight.sentiment === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-500" />}
-                  {insight.sentiment === 'negative' && <AlertTriangle className="w-5 h-5 text-red-500" />}
                   {insight.sentiment === 'positive' && <CheckCircle className="w-5 h-5 text-green-500" />}
-                  <h4 className="font-semibold text-slate-200">{insight.title}</h4>
+                  <h4 className="font-semibold text-slate-200 text-sm">{insight.title}</h4>
                 </div>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  {insight.description}
-                </p>
+                <p className="text-xs text-slate-400 leading-relaxed">{insight.description}</p>
              </div>
            ))}
         </div>

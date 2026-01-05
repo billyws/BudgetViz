@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,6 +7,8 @@
     <title>PNG Budget 2026 Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -25,6 +28,15 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8; 
+      }
+      /* Leaflet control overrides */
+      .leaflet-container {
+        font-family: 'Inter', sans-serif;
+      }
+      .leaflet-bar a {
+        background-color: white !important;
+        color: #1e3a8a !important;
+        border: 1px solid #e2e8f0 !important;
       }
     </style>
   <script type="importmap">
