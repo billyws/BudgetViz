@@ -228,12 +228,14 @@ const ProvincialMap: React.FC = () => {
               </span>
            </div>
            <h3 className="text-2xl font-black text-blue-900 leading-tight">{activeEntity.name}</h3>
-           <div className="flex items-center gap-2 mt-2">
-              <Users className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-medium text-slate-600">
-                {viewLevel === 'national' ? 'Pop. Estimate:' : 'Dist. Density:'} {activeEntity.population.toLocaleString()}
-              </span>
-           </div>
+           {viewLevel === 'national' && (
+             <div className="flex items-center gap-2 mt-2">
+                <Users className="w-4 h-4 text-slate-400" />
+                <span className="text-sm font-medium text-slate-600">
+                  Pop. Estimate: {activeEntity.population.toLocaleString()}
+                </span>
+             </div>
+           )}
         </div>
 
         <div className="space-y-6 flex-1 overflow-y-auto pr-1">
