@@ -29,6 +29,7 @@ const Dashboard: React.FC = () => {
     .map((b, index) => ({
       name: b.name,
       value: b.allocation2026,
+      prevValue: b.allocation2025,
       color: COLORS[index % COLORS.length],
       id: b.id
     })), [budgetData]);
@@ -39,6 +40,7 @@ const Dashboard: React.FC = () => {
     .map((b, index) => ({
       name: b.name,
       value: b.allocation2026,
+      prevValue: b.allocation2025,
       color: ['#10B981', '#059669', '#047857', '#065F46', '#064E3B', '#14532D', '#166534'][index % 7],
       id: b.id
     })), [budgetData]);
@@ -60,15 +62,26 @@ const Dashboard: React.FC = () => {
     { name: 'Infrastructure', value: 666, type: 'Sector' }
   ];
 
-  // Top Spending Priorities (Top 6 Sectors)
+  // Top Spending Priorities (Top 10 Sectors)
   const topPriorities = useMemo(() => {
-    return SECTOR_DATA_2026.slice(0, 6);
+    return SECTOR_DATA_2026.slice(0, 10);
   }, [SECTOR_DATA_2026]);
 
-  // Primary Revenue Streams (Top 5 Revenue Items)
+  // Primary Revenue Streams (Top 10 Revenue Items)
   const topRevenue = useMemo(() => {
-    return REVENUE_DATA_2026.slice(0, 5);
+    return REVENUE_DATA_2026.slice(0, 10);
   }, [REVENUE_DATA_2026]);
+
+  const renderTrend = (curr: number, prev: number) => {
+    if (!prev) return null;
+    const change = ((curr - prev) / prev) * 100;
+    return (
+      <div className={`flex items-center gap-0.5 text-[10px] font-bold ${change >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+        {change >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+        {Math.abs(change).toFixed(1)}%
+      </div>
+    );
+  };
 
   // Drill-down data logic
   const sectorDrillDownData = useMemo(() => {
@@ -294,57 +307,68 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top 2026 Spending Priorities */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        {/* Top 2026 Spending Priorities (Table) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col min-h-[500px]">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
             <Zap className="w-5 h-5 text-amber-500" />
-            Top 2026 Spending Priorities
+            Top Expenditure Priorities
           </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topPriorities} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.3} />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={110} tick={{ fontSize: 10, fontWeight: 'bold' }} />
-                <Tooltip formatter={(val: number) => formatCurrency(val)} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                  {topPriorities.map((entry, index) => (
-                    <Cell key={`cell-tp-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 bg-slate-50 p-3 rounded-lg flex justify-between items-center">
-            <span className="text-[11px] font-bold text-slate-500 uppercase">Lead Priority</span>
-            <span className="text-xs font-black text-blue-700 uppercase">{topPriorities[0]?.name || "Loading..."}</span>
+          <div className="flex-1 overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-50">
+                <tr>
+                  <th className="pb-3 px-2">Sector</th>
+                  <th className="pb-3 text-right px-2">2025 Est.</th>
+                  <th className="pb-3 text-right px-2">2026 Proj.</th>
+                  <th className="pb-3 text-right px-2">Trend</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {topPriorities.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3 px-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                        <span className="text-xs font-bold text-slate-700">{item.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-right font-mono text-[11px] text-slate-500">{formatBillions(item.prevValue)}</td>
+                    <td className="py-3 px-2 text-right font-mono text-xs font-black text-slate-800">{formatBillions(item.value)}</td>
+                    <td className="py-3 px-2 text-right">{renderTrend(item.value, item.prevValue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Primary Revenue Streams */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        {/* Primary Revenue Streams (Table) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col min-h-[500px]">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
             <ArrowUpRight className="w-5 h-5 text-emerald-500" />
             Primary Revenue Streams
           </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topRevenue} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.3} />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={110} tick={{ fontSize: 10, fontWeight: 'bold' }} />
-                <Tooltip formatter={(val: number) => formatCurrency(val)} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                  {topRevenue.map((entry, index) => (
-                    <Cell key={`cell-tr-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 bg-slate-50 p-3 rounded-lg flex justify-between items-center">
-            <span className="text-[11px] font-bold text-slate-500 uppercase">Top Contributor</span>
-            <span className="text-xs font-black text-emerald-700 uppercase">{topRevenue[0]?.name || "Loading..."}</span>
+          <div className="flex-1 overflow-x-auto">
+             <table className="w-full text-left">
+              <thead className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-50">
+                <tr>
+                  <th className="pb-3 px-2">Source</th>
+                  <th className="pb-3 text-right px-2">2025 Est.</th>
+                  <th className="pb-3 text-right px-2">2026 Proj.</th>
+                  <th className="pb-3 text-right px-2">Trend</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {topRevenue.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3 px-2 text-xs font-bold text-slate-700">{item.name}</td>
+                    <td className="py-3 px-2 text-right font-mono text-[11px] text-slate-500">{formatBillions(item.prevValue)}</td>
+                    <td className="py-3 px-2 text-right font-mono text-xs font-black text-emerald-700">{formatBillions(item.value)}</td>
+                    <td className="py-3 px-2 text-right">{renderTrend(item.value, item.prevValue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
