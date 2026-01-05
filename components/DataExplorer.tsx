@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { BUDGET_DATA, formatCurrency } from '../constants';
+import { formatCurrency } from '../constants';
+import { fetchBudgetData } from '../services/geminiService';
 import { Search, ArrowUpDown, Filter, Check, ChevronDown, ChevronRight, ArrowLeft, Info, Zap, Heart, Landmark, Briefcase } from 'lucide-react';
 
 const CATEGORIES = ['Sector', 'Agency', 'Province', 'Revenue'];
@@ -8,6 +9,7 @@ const CATEGORIES = ['Sector', 'Agency', 'Province', 'Revenue'];
 const DataExplorer: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Sector', 'Province', 'Revenue']);
+  const [budgetData, setBudgetData] = useState<any[]>([]);
   
   const [drillDownId, setDrillDownId] = useState<string | null>(null);
   const [drillDownName, setDrillDownName] = useState<string | null>(null);
@@ -17,6 +19,14 @@ const DataExplorer: React.FC = () => {
 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await fetchBudgetData();
+      setBudgetData(data);
+    };
+    getData();
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -48,7 +58,7 @@ const DataExplorer: React.FC = () => {
   };
 
   const filteredData = useMemo(() => {
-    return BUDGET_DATA.filter(item => {
+    return budgetData.filter(item => {
       if (drillDownId) {
         return item.parentId === drillDownId;
       }
@@ -67,7 +77,8 @@ const DataExplorer: React.FC = () => {
       }
       return 0;
     });
-  }, [searchTerm, selectedCategories, sortKey, sortOrder, drillDownId]);
+  }, [searchTerm, selectedCategories, sortKey, sortOrder, drillDownId, budgetData]);
+
 
   const toggleSort = (key: 'name' | 'description' | 'allocation2026') => {
     if (sortKey === key) {

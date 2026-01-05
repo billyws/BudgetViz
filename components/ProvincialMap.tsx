@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { BUDGET_DATA, formatCurrency } from '../constants';
+import { formatCurrency } from '../constants';
+import { fetchBudgetData } from '../services/geminiService';
 import { MapPin, Info, TrendingUp, Users, Landmark, Zap, Globe, ArrowLeft, Maximize2, Map as MapIcon } from 'lucide-react';
 
 declare var L: any; // Leaflet global
@@ -50,15 +51,24 @@ const ProvincialMap: React.FC = () => {
   const [viewLevel, setViewLevel] = useState<'national' | 'provincial'>('national');
   const [selectedProvId, setSelectedProvId] = useState<string | null>('PROV-01');
   const [selectedDistId, setSelectedDistId] = useState<string | null>(null);
+  const [budgetData, setBudgetData] = useState<any[]>([]);
   const mapRef = useRef<any>(null);
   const markerGroupRef = useRef<any>(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await fetchBudgetData();
+      setBudgetData(data);
+    };
+    getData();
+  }, []);
 
   // Process data for the current view
   const displayData = useMemo(() => {
     if (viewLevel === 'national') {
       return PROVINCE_MAP_METADATA.map(meta => {
-        const province = BUDGET_DATA.find(b => b.id === meta.id);
-        const subItems = BUDGET_DATA.filter(b => b.parentId === meta.id);
+        const province = budgetData.find(b => b.id === meta.id);
+        const subItems = budgetData.filter(b => b.parentId === meta.id);
         const dsip = subItems.filter(i => i.category === 'District').length * 10000000;
         const projects = subItems.filter(i => i.category === 'Agency').reduce((acc, curr) => acc + curr.allocation2026, 0);
         const population = province?.population || 1;
@@ -68,8 +78,8 @@ const ProvincialMap: React.FC = () => {
     } else {
       // District drill down
       const province = PROVINCE_MAP_METADATA.find(p => p.id === selectedProvId);
-      const districts = BUDGET_DATA.filter(b => b.parentId === selectedProvId && b.category === 'District');
-      const provBudget = BUDGET_DATA.find(b => b.id === selectedProvId);
+      const districts = budgetData.filter(b => b.parentId === selectedProvId && b.category === 'District');
+      const provBudget = budgetData.find(b => b.id === selectedProvId);
       const provPop = provBudget?.population || 1;
       
       return districts.map((dist, idx) => {
@@ -88,7 +98,8 @@ const ProvincialMap: React.FC = () => {
         };
       });
     }
-  }, [viewLevel, selectedProvId]);
+  }, [viewLevel, selectedProvId, budgetData]);
+
 
   const activeEntity = useMemo(() => {
     if (viewLevel === 'national') {

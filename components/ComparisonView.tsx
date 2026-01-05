@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { BUDGET_DATA, formatCurrency } from '../constants';
+import { formatCurrency } from '../constants';
+import { fetchBudgetData } from '../services/geminiService';
 import { ArrowRightLeft, TrendingUp, TrendingDown, Search, ChevronDown, Check, BarChart2, Users, Receipt, Globe } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 
@@ -89,17 +90,30 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({ options, value, onC
 const ComparisonView: React.FC = () => {
   const [mode, setMode] = useState<'item' | 'province'>('item');
   const [metric, setMetric] = useState<'total' | 'perCapita'>('total');
+  const [budgetData, setBudgetData] = useState<any[]>([]);
   
   // Item Comparison State
-  const [item1Id, setItem1Id] = useState(BUDGET_DATA[0].id);
-  const [item2Id, setItem2Id] = useState(BUDGET_DATA[1].id);
+  const [item1Id, setItem1Id] = useState<string | null>(null);
+  const [item2Id, setItem2Id] = useState<string | null>(null);
 
-  const item1 = BUDGET_DATA.find(i => i.id === item1Id);
-  const item2 = BUDGET_DATA.find(i => i.id === item2Id);
+  useEffect(() => {
+    const getData = async () => {
+      const data = await fetchBudgetData();
+      setBudgetData(data);
+      if (data.length > 1) {
+        setItem1Id(data[0].id);
+        setItem2Id(data[1].id);
+      }
+    };
+    getData();
+  }, []);
+
+  const item1 = budgetData.find(i => i.id === item1Id);
+  const item2 = budgetData.find(i => i.id === item2Id);
 
   // Provincial Comparison Data
   const provincialData = useMemo(() => {
-    return BUDGET_DATA
+    return budgetData
       .filter(i => i.category === 'Province')
       .map(p => {
         const population = p.population || 1;
@@ -114,24 +128,24 @@ const ComparisonView: React.FC = () => {
         };
       })
       .sort((a, b) => b.value - a.value); // Sort by selected metric
-  }, [metric]);
+  }, [metric, budgetData]);
 
   // Calculate National Statistics
   const nationalStats = useMemo(() => {
-    const totalAllocatedBudget = BUDGET_DATA
+    const totalAllocatedBudget = budgetData
       .filter(b => b.category === 'Sector')
       .reduce((sum, item) => sum + item.allocation2026, 0);
     
-    const totalPopulation = BUDGET_DATA
+    const totalPopulation = budgetData
       .filter(b => b.category === 'Province')
       .reduce((sum, item) => sum + (item.population || 0), 0);
     
     const nationalPerCapita = totalAllocatedBudget / totalPopulation;
 
     return { totalPopulation, nationalPerCapita };
-  }, []);
+  }, [budgetData]);
 
-  const selectOptions = useMemo(() => BUDGET_DATA.map(i => ({ id: i.id, name: i.name })), []);
+  const selectOptions = useMemo(() => budgetData.map(i => ({ id: i.id, name: i.name })), [budgetData]);
 
   const getGrowth = (current: number, previous: number) => {
     const percent = ((current - previous) / previous) * 100;
@@ -314,15 +328,15 @@ const ComparisonView: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
             <div>
-              <span className="font-semibold text-blue-700">Highest {metric === 'total' ? 'Allocation' : 'Per Capita'}:</span> {provincialData[0].name}
+              <span className="font-semibold text-blue-700">Highest {metric === 'total' ? 'Allocation' : 'Per Capita'}:</span> {provincialData[0]?.name || "N/A"}
               <div className="text-xs text-slate-500 mt-1">
-                Receives {metric === 'total' ? formatCurrency(provincialData[0].value) : `${formatCurrency(provincialData[0].value)} per person`}.
+                Receives {provincialData[0] ? (metric === 'total' ? formatCurrency(provincialData[0].value) : `${formatCurrency(provincialData[0].value)} per person`) : "No data"}.
               </div>
             </div>
             <div>
-              <span className="font-semibold text-red-600">Lowest {metric === 'total' ? 'Allocation' : 'Per Capita'}:</span> {provincialData[provincialData.length - 1].name}
+              <span className="font-semibold text-red-600">Lowest {metric === 'total' ? 'Allocation' : 'Per Capita'}:</span> {provincialData[provincialData.length - 1]?.name || "N/A"}
                <div className="text-xs text-slate-500 mt-1">
-                Receives {metric === 'total' ? formatCurrency(provincialData[provincialData.length - 1].value) : `${formatCurrency(provincialData[provincialData.length - 1].value)} per person`}.
+                Receives {provincialData.length > 0 ? (metric === 'total' ? formatCurrency(provincialData[provincialData.length - 1].value) : `${formatCurrency(provincialData[provincialData.length - 1].value)} per person`) : "No data"}.
               </div>
             </div>
           </div>

@@ -42,7 +42,12 @@ let chatSession: Chat | null = null;
 
 export const initializeChat = () => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    // Safely access environment variables in both Vite and Node-like environments
+    const apiKey = (typeof process !== 'undefined' && process.env?.API_KEY) ||
+      (import.meta as any).env?.VITE_GEMINI_API_KEY ||
+      '';
+
+    const ai = new GoogleGenAI({ apiKey });
     chatSession = ai.chats.create({
       model: 'gemini-3-flash-preview',
       config: {

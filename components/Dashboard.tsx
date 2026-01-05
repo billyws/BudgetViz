@@ -1,15 +1,47 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
   PieChart, Pie, Cell, Label
 } from 'recharts';
-import { BUDGET_DATA, SECTOR_DATA_2026, REVENUE_DATA_2026, COLORS, formatCurrency, formatBillions, KPMG_INSIGHTS, FISCAL_METRICS } from '../constants';
+import { formatCurrency, formatBillions, KPMG_INSIGHTS, FISCAL_METRICS } from '../constants';
+import { fetchBudgetData } from '../services/geminiService';
 import { TrendingUp, Wallet, Activity, Zap, AlertTriangle, CheckCircle, Users, Coins, TrendingDown, Landmark, ChevronRight, ArrowLeft, ArrowUpRight } from 'lucide-react';
+
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6', '#F97316'];
 
 const Dashboard: React.FC = () => {
   const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
   const [activeRevenueId, setActiveRevenueId] = useState<string | null>(null);
+  const [budgetData, setBudgetData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await fetchBudgetData();
+      setBudgetData(data);
+    };
+    getData();
+  }, []);
+
+  const SECTOR_DATA_2026 = useMemo(() => budgetData
+    .filter(b => b.category === 'Sector')
+    .sort((a, b) => b.allocation2026 - a.allocation2026)
+    .map((b, index) => ({
+      name: b.name,
+      value: b.allocation2026,
+      color: COLORS[index % COLORS.length],
+      id: b.id
+    })), [budgetData]);
+
+  const REVENUE_DATA_2026 = useMemo(() => budgetData
+    .filter(b => b.category === 'Revenue' && !b.parentId)
+    .sort((a, b) => b.allocation2026 - a.allocation2026)
+    .map((b, index) => ({
+      name: b.name,
+      value: b.allocation2026,
+      color: ['#10B981', '#059669', '#047857', '#065F46', '#064E3B', '#14532D', '#166534'][index % 7],
+      id: b.id
+    })), [budgetData]);
 
   const totalBudget2026 = FISCAL_METRICS.totalExpenditure;
   const totalRevenue2026 = FISCAL_METRICS.totalRevenue;
@@ -31,12 +63,12 @@ const Dashboard: React.FC = () => {
   // Top Spending Priorities (Top 6 Sectors)
   const topPriorities = useMemo(() => {
     return SECTOR_DATA_2026.slice(0, 6);
-  }, []);
+  }, [SECTOR_DATA_2026]);
 
   // Primary Revenue Streams (Top 5 Revenue Items)
   const topRevenue = useMemo(() => {
     return REVENUE_DATA_2026.slice(0, 5);
-  }, []);
+  }, [REVENUE_DATA_2026]);
 
   // Drill-down data logic
   const sectorDrillDownData = useMemo(() => {
@@ -46,21 +78,26 @@ const Dashboard: React.FC = () => {
       const otherSectors = SECTOR_DATA_2026.slice(4);
       
       if (otherSectors.length > 0) {
-        const otherValue = otherSectors.reduce((sum, item) => sum + item.value, 0);
+        // Explicitly set to K14,677 million as requested
+        const otherValue = 14677000000;
         return [
           ...topSectors,
           { 
             name: 'Other Sectors', 
             value: otherValue, 
             color: '#94a3b8', // slate-400
-            id: null 
+            id: 'OTHER_SECTORS' 
           }
         ];
       }
       return topSectors;
     }
 
-    return BUDGET_DATA
+    if (activeSectorId === 'OTHER_SECTORS') {
+      return SECTOR_DATA_2026.slice(4);
+    }
+
+    return budgetData
       .filter(b => b.parentId === activeSectorId)
       .map((b, index) => ({
         name: b.name,
@@ -68,11 +105,11 @@ const Dashboard: React.FC = () => {
         color: COLORS[index % COLORS.length],
         id: b.id
       }));
-  }, [activeSectorId]);
+  }, [activeSectorId, budgetData]);
 
   const revenueDrillDownData = useMemo(() => {
     if (!activeRevenueId) return REVENUE_DATA_2026;
-    return BUDGET_DATA
+    return budgetData
       .filter(b => b.parentId === activeRevenueId)
       .map((b, index) => ({
         name: b.name,
@@ -80,10 +117,12 @@ const Dashboard: React.FC = () => {
         color: ['#10B981', '#059669', '#047857', '#065F46', '#064E3B'][index % 5],
         id: b.id
       }));
-  }, [activeRevenueId]);
+  }, [activeRevenueId, budgetData]);
 
-  const activeSectorName = BUDGET_DATA.find(b => b.id === activeSectorId)?.name || "All Sectors";
-  const activeRevenueName = BUDGET_DATA.find(b => b.id === activeRevenueId)?.name || "All Sources";
+  const activeSectorName = activeSectorId === 'OTHER_SECTORS' 
+    ? "Other Sectors" 
+    : budgetData.find(b => b.id === activeSectorId)?.name || "All Sectors";
+  const activeRevenueName = budgetData.find(b => b.id === activeRevenueId)?.name || "All Sources";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -166,7 +205,11 @@ const Dashboard: React.FC = () => {
                   dataKey="value" 
                   paddingAngle={5}
                   onClick={(data) => {
-                    if (!activeSectorId && data.id) setActiveSectorId(data.id);
+                    if (data.id) {
+                      if (!activeSectorId || activeSectorId === 'OTHER_SECTORS') {
+                        setActiveSectorId(data.id);
+                      }
+                    }
                   }}
                   className="cursor-pointer focus:outline-none"
                 >
@@ -274,7 +317,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="mt-4 bg-slate-50 p-3 rounded-lg flex justify-between items-center">
             <span className="text-[11px] font-bold text-slate-500 uppercase">Lead Priority</span>
-            <span className="text-xs font-black text-blue-700 uppercase">{topPriorities[0].name}</span>
+            <span className="text-xs font-black text-blue-700 uppercase">{topPriorities[0]?.name || "Loading..."}</span>
           </div>
         </div>
 
@@ -301,7 +344,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="mt-4 bg-slate-50 p-3 rounded-lg flex justify-between items-center">
             <span className="text-[11px] font-bold text-slate-500 uppercase">Top Contributor</span>
-            <span className="text-xs font-black text-emerald-700 uppercase">{topRevenue[0].name}</span>
+            <span className="text-xs font-black text-emerald-700 uppercase">{topRevenue[0]?.name || "Loading..."}</span>
           </div>
         </div>
       </div>
