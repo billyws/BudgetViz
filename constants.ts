@@ -46,6 +46,30 @@ export const KPMG_INSIGHTS: AnalysisInsight[] = [
     description: "K1.47 billion total for Provincial Health Authorities (PHAs) aims to decentralize healthcare.",
     sentiment: 'positive',
     source: 'Volume 1 - 2026 Budget'
+  },
+  {
+    title: "Security with Growth Theme",
+    description: "The budget dual-focus on law & order (K2.5B) alongside 4.5% non-resource growth targets long-term stability.",
+    sentiment: 'positive',
+    source: 'KPMG 2026 Budget Review'
+  },
+  {
+    title: "New Income Tax Act 2026",
+    description: "Effective Jan 1, 2026. Businesses must prepare for significant changes in employee and corporate tax calculations.",
+    sentiment: 'warning',
+    source: 'KPMG 2026 Budget Review'
+  },
+  {
+    title: "Path to 2027 Surplus",
+    description: "Aggressive fiscal consolidation targets a balanced budget by 2027 and total debt clearance by 2034.",
+    sentiment: 'positive',
+    source: 'KPMG 2026 Budget Review'
+  },
+  {
+    title: "Agriculture & SME Focus",
+    description: "Record K1.5B for Agriculture and K0.8B for SMEs signals a shift towards diversifying the non-resource economy.",
+    sentiment: 'positive',
+    source: 'KPMG 2026 Budget Review'
   }
 ];
 
