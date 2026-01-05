@@ -9,7 +9,7 @@ export const NSO_URL = "https://www.nso.gov.pg/statistics/population/";
  * FISCAL STRATEGY METRICS 2026 (Official Strategy Alignment)
  */
 export const FISCAL_METRICS = {
-  deficitGdp: 1.1, 
+  deficitGdp: 1.1,
   deficitGdp2024: 2.2,
   debtGdp: 45.5,
   debtGdp2025: 48.4,
@@ -57,6 +57,11 @@ export const BUDGET_DATA: BudgetCode[] = [
   // --- REVENUE SOURCES ---
   { id: 'REV-03', name: 'Personal Income Tax (PAYE)', category: 'Revenue', allocation2024: 7200000000, allocation2025: 7800000000, allocation2026: 8800000000 },
   { id: 'REV-01', name: 'Mining & Petroleum Dividends', category: 'Revenue', allocation2024: 7800000000, allocation2025: 8400000000, allocation2026: 7500000000 },
+  { id: 'REV-01-01', name: 'Ok Tedi Mining Dividends', parentId: 'REV-01', category: 'Revenue', allocation2024: 2100000000, allocation2025: 2300000000, allocation2026: 2000000000 },
+  { id: 'REV-01-02', name: 'PNG LNG Project (ExxonMobil)', parentId: 'REV-01', category: 'Revenue', allocation2024: 2500000000, allocation2025: 2800000000, allocation2026: 2400000000 },
+  { id: 'REV-01-03', name: 'Porgera Gold Mine', parentId: 'REV-01', category: 'Revenue', allocation2024: 1200000000, allocation2025: 1300000000, allocation2026: 1100000000 },
+  { id: 'REV-01-04', name: 'Lihir Gold (Newmont)', parentId: 'REV-01', category: 'Revenue', allocation2024: 1000000000, allocation2025: 1100000000, allocation2026: 1000000000 },
+  { id: 'REV-01-05', name: 'Other Mining & Petroleum', parentId: 'REV-01', category: 'Revenue', allocation2024: 1000000000, allocation2025: 900000000, allocation2026: 1000000000 },
   { id: 'REV-02', name: 'Goods & Services Tax (GST)', category: 'Revenue', allocation2024: 5500000000, allocation2025: 6400000000, allocation2026: 7200000000 },
   { id: 'REV-04', name: 'Company Income Tax', category: 'Revenue', allocation2024: 3200000000, allocation2025: 3800000000, allocation2026: 4200000000 },
   { id: 'REV-05', name: 'Other Non-Tax Revenue', category: 'Revenue', allocation2024: 1100000000, allocation2025: 1400000000, allocation2026: 1600000000 },
@@ -71,7 +76,7 @@ export const BUDGET_DATA: BudgetCode[] = [
   { id: 'SEC-08', name: 'Public Administration', category: 'Sector', allocation2024: 4000000000, allocation2025: 4200000000, allocation2026: 4500000000 },
 
   // --- PROVINCIAL DATA (VOLUME 2 A, B, C, D) ---
-  
+
   // VOLUME 2A - SOUTHERN REGION & NCD
   { id: 'PROV-01', name: 'National Capital District', category: 'Province', allocation2024: 850000000, allocation2025: 900000000, allocation2026: 1200000000, population: 970170 },
   { id: 'PROV-01-D1', name: 'Moresby North-West', parentId: 'PROV-01', category: 'District', allocation2024: 10000000, allocation2025: 10000000, allocation2026: 10000000 },
